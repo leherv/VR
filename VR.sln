@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VR", "VR\VR.csproj", "{075DFE4A-6C7B-4297-B7AC-7343254863A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notifier", "Notifier\Notifier.csproj", "{90C2E37F-806C-41E7-8447-D134A2A25EB1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{25AB15CC-A11A-4E7F-8E63-BB5F6934C62D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Persistence", "Persistence\Persistence.csproj", "{FDF2BC53-F704-41D8-88C8-72E9D174B7BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessEntities", "BusinessEntities\BusinessEntities.csproj", "{F882A9A6-A247-4D07-933A-76256A4BEB9A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scraper", "Scraper\Scraper.csproj", "{2F3CE4F2-6C43-43F7-BADB-7061C1E7455E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{4850691F-5395-461E-B701-DA135AEC9EE9}"
+ProjectSection(SolutionItems) = preProject
+	.env = .env
+	docker-compose-optionC.yaml = docker-compose-optionC.yaml
+	docker-compose-optionB.yaml = docker-compose-optionB.yaml
+	docker-compose.yaml = docker-compose.yaml
+	Dockerfile = Dockerfile
+	README.md = README.md
+	.env.example = .env.example
+EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{075DFE4A-6C7B-4297-B7AC-7343254863A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{075DFE4A-6C7B-4297-B7AC-7343254863A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{075DFE4A-6C7B-4297-B7AC-7343254863A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{075DFE4A-6C7B-4297-B7AC-7343254863A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90C2E37F-806C-41E7-8447-D134A2A25EB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90C2E37F-806C-41E7-8447-D134A2A25EB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90C2E37F-806C-41E7-8447-D134A2A25EB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90C2E37F-806C-41E7-8447-D134A2A25EB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25AB15CC-A11A-4E7F-8E63-BB5F6934C62D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25AB15CC-A11A-4E7F-8E63-BB5F6934C62D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25AB15CC-A11A-4E7F-8E63-BB5F6934C62D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25AB15CC-A11A-4E7F-8E63-BB5F6934C62D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDF2BC53-F704-41D8-88C8-72E9D174B7BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDF2BC53-F704-41D8-88C8-72E9D174B7BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDF2BC53-F704-41D8-88C8-72E9D174B7BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDF2BC53-F704-41D8-88C8-72E9D174B7BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F882A9A6-A247-4D07-933A-76256A4BEB9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F882A9A6-A247-4D07-933A-76256A4BEB9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F882A9A6-A247-4D07-933A-76256A4BEB9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F882A9A6-A247-4D07-933A-76256A4BEB9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F3CE4F2-6C43-43F7-BADB-7061C1E7455E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F3CE4F2-6C43-43F7-BADB-7061C1E7455E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F3CE4F2-6C43-43F7-BADB-7061C1E7455E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F3CE4F2-6C43-43F7-BADB-7061C1E7455E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
