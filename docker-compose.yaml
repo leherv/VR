@@ -3,6 +3,7 @@
 services:
   vr:
     container_name: vr
+    image: vr:latest
     build: .
     environment:
       VR_NOTIFIERSETTINGS__DISCORDSETTINGS__APIKEY: "${VR_NOTIFIERSETTINGS__DISCORDSETTINGS__APIKEY}"
@@ -10,6 +11,7 @@ services:
       VR_CONNECTIONSTRINGS__DB: "${VR_CONNECTIONSTRINGS__DB}"
     networks:
       - vr
+    restart: always
       
 networks:
   vr:

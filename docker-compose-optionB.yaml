@@ -3,11 +3,15 @@
 services:
   vr:
     container_name: vr
+    image: vr:latest
     build: .
     environment:
       VR_NOTIFIERSETTINGS__DISCORDSETTINGS__APIKEY: "${VR_NOTIFIERSETTINGS__DISCORDSETTINGS__APIKEY}"
       VR_VRORCHESTRATORSERVICESETTINGS__SCRAPEINTERVALMINUTES: "${VR_VRORCHESTRATORSERVICESETTINGS__SCRAPEINTERVALMINUTES}"
       VR_CONNECTIONSTRINGS__DB: "${VR_CONNECTIONSTRINGS__DB}"
+    networks:
+      - vr
+    restart: always
     depends_on:
       vr_db:
         condition: service_healthy
@@ -25,9 +29,16 @@ services:
       POSTGRES_DB: "${VR_PERSISTENCESETTINGS__DBNAME}"
       POSTGRES_USER: "${VR_PERSISTENCESETTINGS__DBUSERNAME}"
       POSTGRES_PASSWORD: "${VR_PERSISTENCESETTINGS__DBPASSWORD}"
+    networks:
+      - vr
+    restart: always
 
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${VR_PERSISTENCESETTINGS__DBUSERNAME}" ]
       interval: 10s
       timeout: 5s
       retries: 5
+      
+networks:
+  vr:
+    name: custom_vr

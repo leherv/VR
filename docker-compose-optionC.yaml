@@ -3,6 +3,7 @@
 services:
   vr:
     container_name: vr
+    image: vr:latest
     build: .
     environment:
       VR_NOTIFIERSETTINGS__DISCORDSETTINGS__APIKEY: "${VR_NOTIFIERSETTINGS__DISCORDSETTINGS__APIKEY}"
@@ -13,6 +14,7 @@ services:
     depends_on:
       vr_db:
         condition: service_healthy
+    restart: always
 
   vr_db:
     container_name: vr_db
@@ -29,6 +31,7 @@ services:
       POSTGRES_PASSWORD: "${VR_PERSISTENCESETTINGS__DBPASSWORD}"
     networks:
       - vr
+    restart: always
 
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${VR_PERSISTENCESETTINGS__DBUSERNAME}" ]
