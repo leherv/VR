@@ -46,7 +46,7 @@ namespace VR
                         options.UseNpgsql(hostContext.Configuration.GetConnectionString("Db"), o =>
                         {
                             o.MigrationsAssembly(PersistenceAssemblyMarker.GetAssemblyName);
-                        }), ServiceLifetime.Singleton);
+                        }), ServiceLifetime.Transient);
                     services.AddSingleton<IReleaseService, ReleaseService>();
                     services.AddSingleton<IReleaseDataStore, ReleaseDataStore>();
                     services.AddSingleton<INotificationEndpointService, NotificationEndpointService>();
