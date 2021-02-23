@@ -30,7 +30,7 @@ namespace VRNotifier.Services
         public async Task InitializeAsync()
         {
             // Register modules that are public and inherit ModuleBase<T>.
-            await _commandService.AddModulesAsync(Assembly.GetEntryAssembly(), _serviceProvider);
+            await _commandService.AddModulesAsync(NotifierAssemblyMarker.GetAssembly, _serviceProvider);
         }
 
 
