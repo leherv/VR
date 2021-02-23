@@ -1,0 +1,45 @@
+﻿version: '3.7'
+
+services:
+  vr:
+    container_name: vr
+    build: .
+    environment:
+      VR_NOTIFIERSETTINGS__DISCORDSETTINGS__APIKEY: "${VR_NOTIFIERSETTINGS__DISCORDSETTINGS__APIKEY}"
+      VR_VRORCHESTRATORSERVICESETTINGS__SCRAPEINTERVALMINUTES: "${VR_VRORCHESTRATORSERVICESETTINGS__SCRAPEINTERVALMINUTES}"
+      VR_CONNECTIONSTRINGS__DB: "${VR_CONNECTIONSTRINGS__DB}"
+    networks:
+      - vr
+    depends_on:
+      vr_db:
+        condition: service_healthy
+
+  vr_db:
+    container_name: vr_db
+    image: library/postgres:13.0
+    ports:
+      - ${VR_PERSISTENCESETTINGS__DBPORT}:5432
+    volumes:
+      - type: volume
+        source: test
+        target: /var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: "${VR_PERSISTENCESETTINGS__DBNAME}"
+      POSTGRES_USER: "${VR_PERSISTENCESETTINGS__DBUSERNAME}"
+      POSTGRES_PASSWORD: "${VR_PERSISTENCESETTINGS__DBPASSWORD}"
+    networks:
+      - vr
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${VR_PERSISTENCESETTINGS__DBUSERNAME}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  test:
+    name: "${VR_PERSISTENCESETTINGS__DBVOLUMENAME}"
+
+networks:
+  vr:
+    name: custom_vr

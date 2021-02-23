@@ -1,0 +1,16 @@
+﻿version: '3.7'
+
+services:
+  vr:
+    container_name: vr
+    build: .
+    environment:
+      VR_NOTIFIERSETTINGS__DISCORDSETTINGS__APIKEY: "${VR_NOTIFIERSETTINGS__DISCORDSETTINGS__APIKEY}"
+      VR_VRORCHESTRATORSERVICESETTINGS__SCRAPEINTERVALMINUTES: "${VR_VRORCHESTRATORSERVICESETTINGS__SCRAPEINTERVALMINUTES}"
+      VR_CONNECTIONSTRINGS__DB: "${VR_CONNECTIONSTRINGS__DB}"
+    networks:
+      - vr
+      
+networks:
+  vr:
+    name: custom_vr
