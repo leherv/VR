@@ -1,4 +1,5 @@
-﻿using Common.Config;
+﻿using System.Threading.Tasks;
+using Common.Config;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
@@ -17,13 +18,13 @@ namespace VR
 {
     class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
             using var scope = host.Services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<VRPersistenceDbContext>();
-            db.Database.Migrate();
-            host.Run();
+            await db.Database.MigrateAsync();
+            await host.RunAsync();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
