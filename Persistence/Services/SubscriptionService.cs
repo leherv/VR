@@ -26,7 +26,6 @@ namespace Persistence.Services
 
         public async Task<Result> AddSubscription(BusinessEntities.Subscription subscription)
         {
-            var subscriptionDao = new Subscription(subscription);
             var mediaResult = await _mediaDataStore.GetMedia(subscription.Media.MediaName);
             if (mediaResult.IsFailure)
             {
@@ -42,9 +41,7 @@ namespace Persistence.Services
                 return Result.Failure(
                     $"NotificationEndpoint {subscription.NotificationEndpoint.Identifier} that should be used for the subscription to does not exist.");
             }
-
-            subscriptionDao.Media = mediaResult.Value;
-            subscriptionDao.NotificationEndpoint = notificationEndpointResult.Value;
+            var subscriptionDao = new Subscription(mediaResult.Value, notificationEndpointResult.Value);
             return await _subscriptionDataStore.AddSubscription(subscriptionDao);
         }
 

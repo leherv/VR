@@ -27,8 +27,6 @@ namespace Persistence
             subscriptionModel
                 .HasIndex(s => new {s.MediaId, s.NotificationEndpointId})
                 .IsUnique();
-            subscriptionModel.HasOne<Media>();
-            subscriptionModel.HasOne<NotificationEndpoint>();
 
             base.OnModelCreating(modelBuilder);
         }

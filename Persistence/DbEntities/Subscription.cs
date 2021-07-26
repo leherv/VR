@@ -8,10 +8,10 @@
         public Media Media { get; set; }
         public NotificationEndpoint NotificationEndpoint { get; set; }
 
-        public Subscription(BusinessEntities.Subscription subscription)
+        public Subscription(Media media, NotificationEndpoint notificationEndpoint)
         {
-            Media = new Media(subscription.Media);
-            NotificationEndpoint = new NotificationEndpoint(subscription.NotificationEndpoint);
+            Media = media;
+            NotificationEndpoint = notificationEndpoint;
         }
         
         public Subscription() {}
