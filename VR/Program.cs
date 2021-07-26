@@ -19,7 +19,11 @@ namespace VR
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var host = CreateHostBuilder(args).Build();
+            using var scope = host.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<VRPersistenceDbContext>();
+            db.Database.Migrate();
+            host.Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -31,7 +35,8 @@ namespace VR
                     services.AddSingleton<IScrapeService, ScrapeService>();
 
                     // VRNotifier
-                    services.Configure<TrackedMediaSettings>(hostContext.Configuration.GetSection(nameof(TrackedMediaSettings)));
+                    services.Configure<TrackedMediaSettings>(
+                        hostContext.Configuration.GetSection(nameof(TrackedMediaSettings)));
                     services.Configure<DiscordSettings>(
                         hostContext.Configuration.GetSection($"NotifierSettings:{nameof(DiscordSettings)}"));
 
@@ -43,10 +48,9 @@ namespace VR
 
                     // VRPersistence
                     services.AddDbContext<VRPersistenceDbContext>(options =>
-                        options.UseNpgsql(hostContext.Configuration.GetConnectionString("Db"), o =>
-                        {
-                            o.MigrationsAssembly(PersistenceAssemblyMarker.GetAssemblyName);
-                        }), ServiceLifetime.Transient);
+                            options.UseNpgsql(hostContext.Configuration.GetConnectionString("Db"),
+                                o => { o.MigrationsAssembly(PersistenceAssemblyMarker.GetAssemblyName); }),
+                        ServiceLifetime.Transient);
                     services.AddSingleton<IReleaseService, ReleaseService>();
                     services.AddSingleton<IReleaseDataStore, ReleaseDataStore>();
                     services.AddSingleton<INotificationEndpointService, NotificationEndpointService>();

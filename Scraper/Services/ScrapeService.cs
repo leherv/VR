@@ -65,7 +65,7 @@ namespace Scraper.Services
                 var newestLink = await container.QuerySelectorAsync("ul.row-content-chapter > li.a-h > a");
                 var chapterUrlHandle = await newestLink.GetPropertyAsync("href");
                 var chapterUrl = (string) await chapterUrlHandle.JsonValueAsync();
-                var regexResult = Regex.Match(chapterUrl, @"chapter_(\d{1,4})\.*(\d{0,4})");
+                var regexResult = Regex.Match(chapterUrl, @"chapter-(\d{1,4})\.*(\d{0,4})");
                 var releaseNumberString = regexResult.Groups[1].Value;
                 var subReleaseNumberString = regexResult.Groups[2].Value;
                 if (!int.TryParse(releaseNumberString, out var releaseNumber))
