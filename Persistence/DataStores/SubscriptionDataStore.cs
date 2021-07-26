@@ -74,8 +74,8 @@ namespace Persistence.DataStores
                 .Include(s => s.Media)
                 .Include(s => s.NotificationEndpoint)
                 .FirstOrDefaultAsync(s =>
-                    s.MediaId == mediaId &&
-                    s.NotificationEndpointId == notificationEndpointId
+                    s.Media.Id == mediaId &&
+                    s.NotificationEndpoint.Id == notificationEndpointId
                 );
             if (subscription == null)
             {

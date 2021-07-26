@@ -3,8 +3,6 @@
     public class Subscription
     {
         public long Id { get; set; }
-        public long MediaId { get; set; }
-        public long NotificationEndpointId { get; set; }
         public Media Media { get; set; }
         public NotificationEndpoint NotificationEndpoint { get; set; }
 
@@ -18,7 +16,7 @@
 
         public BusinessEntities.Subscription ToBusinessEntity()
         {
-            return new BusinessEntities.Subscription(Media.ToBusinessEntity(), NotificationEndpoint.ToBusinessEntity());
+            return new(Media.ToBusinessEntity(), NotificationEndpoint.ToBusinessEntity());
         }
     }
 }
