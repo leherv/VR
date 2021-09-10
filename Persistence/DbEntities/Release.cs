@@ -2,7 +2,7 @@
 {
     public class Release
     {
-        public long Id { get; set; }
+        public int Id { get; set; }
         public Media Media { get; set; } 
         public int ReleaseNumber { get; set; }
         public int SubReleaseNumber { get; set; }

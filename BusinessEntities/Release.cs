@@ -23,7 +23,7 @@
 
         public Release(string mediaName, int releaseNumber, int subReleaseNumber, string url, bool notified = false)
         {
-            Media = new Media(mediaName);
+            Media = new Media(mediaName, string.Empty, null);
             ReleaseNumber = releaseNumber;
             SubReleaseNumber = subReleaseNumber;
             Url = url;

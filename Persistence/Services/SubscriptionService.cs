@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BusinessEntities;
 using CSharpFunctionalExtensions;
@@ -24,9 +25,9 @@ namespace Persistence.Services
             _notificationDataStore = notificationDataStore;
         }
 
-        public async Task<Result> AddSubscription(BusinessEntities.Subscription subscription)
+        public async Task<Result> AddSubscription(BusinessEntities.Subscription subscription, CancellationToken cancellationToken)
         {
-            var mediaResult = await _mediaDataStore.GetMedia(subscription.Media.MediaName);
+            var mediaResult = await _mediaDataStore.GetMedia(subscription.Media.MediaName, cancellationToken);
             if (mediaResult.IsFailure)
             {
                 _logger.LogError("Media {media} that should be subscribed to does not exist.", subscription.Media.MediaName);
@@ -34,7 +35,7 @@ namespace Persistence.Services
                     $"Media {subscription.Media.MediaName} that should be subscribed to does not exist.");
             }
             var notificationEndpointResult =
-                await _notificationDataStore.GetNotificationEndpoint(subscription.NotificationEndpoint.Identifier);
+                await _notificationDataStore.GetNotificationEndpoint(subscription.NotificationEndpoint.Identifier, cancellationToken);
             if (notificationEndpointResult.IsFailure)
             {
                 _logger.LogError("NotificationEndpoint {endpoint} that should be used for the subscription to does not exist.", subscription.NotificationEndpoint.Identifier);
@@ -42,19 +43,23 @@ namespace Persistence.Services
                     $"NotificationEndpoint {subscription.NotificationEndpoint.Identifier} that should be used for the subscription to does not exist.");
             }
             var subscriptionDao = new Subscription(mediaResult.Value, notificationEndpointResult.Value);
-            return await _subscriptionDataStore.AddSubscription(subscriptionDao);
+            return await _subscriptionDataStore.AddSubscription(subscriptionDao, cancellationToken);
         }
-
-        public async Task<List<Result>> AddSubscriptions(List<BusinessEntities.Subscription> subscriptions)
+        
+        public async Task<List<Result>> AddSubscriptions(List<BusinessEntities.Subscription> subscriptions, CancellationToken cancellationToken)
         {
-            var tasks = subscriptions.Select(AddSubscription);
-            var results = await Task.WhenAll(tasks);
+            var results = new List<Result>();
+            foreach (var subscription in subscriptions)
+            {
+                var result = await AddSubscription(subscription, cancellationToken);
+                results.Add(result);
+            }
             return results.ToList();
         }
 
-        public async Task<Result> DeleteSubscription(DeleteSubscriptionInstruction deleteSubscriptionInstruction)
+        public async Task<Result> DeleteSubscription(DeleteSubscriptionInstruction deleteSubscriptionInstruction, CancellationToken cancellationToken)
         {
-            var mediaResult = await _mediaDataStore.GetMedia(deleteSubscriptionInstruction.MediaName);
+            var mediaResult = await _mediaDataStore.GetMedia(deleteSubscriptionInstruction.MediaName, cancellationToken);
             if (mediaResult.IsFailure)
             {
                 _logger.LogError("Media with name {mediaName}, referenced in the subscription to delete, does not exist.", deleteSubscriptionInstruction.MediaName);
@@ -62,7 +67,7 @@ namespace Persistence.Services
                     $"Media with name {deleteSubscriptionInstruction.MediaName}, referenced in the subscription to delete, does not exist.");
             }
             var notificationEndpointResult =
-                await _notificationDataStore.GetNotificationEndpoint(deleteSubscriptionInstruction.NotificationEndpointIdentifier);
+                await _notificationDataStore.GetNotificationEndpoint(deleteSubscriptionInstruction.NotificationEndpointIdentifier, cancellationToken);
             if (notificationEndpointResult.IsFailure)
             {
                 _logger.LogError("NotificationEndpoint with identifier {identifier}, referenced in the subscription to delete, does not exist.", deleteSubscriptionInstruction.NotificationEndpointIdentifier);
@@ -70,35 +75,39 @@ namespace Persistence.Services
                     $"NotificationEndpoint with identifier {deleteSubscriptionInstruction.NotificationEndpointIdentifier}, referenced in the subscription to delete, does not exist.");
             }
 
-            var subscriptionResult = await _subscriptionDataStore.GetSubscription(mediaResult.Value.Id, notificationEndpointResult.Value.Id);
+            var subscriptionResult = await _subscriptionDataStore.GetSubscription(mediaResult.Value.Id, notificationEndpointResult.Value.Id, cancellationToken);
             if (subscriptionResult.IsFailure)
             {
                 _logger.LogError("There is no subscription for mediaName {mediaName} and notificationEndpointIdentifier {notificationEndpointIdentifier} to delete", deleteSubscriptionInstruction.MediaName, deleteSubscriptionInstruction.NotificationEndpointIdentifier);
                 return Result.Failure($"There is no subscription for mediaName {deleteSubscriptionInstruction.MediaName} and notificationEndpointIdentifier {deleteSubscriptionInstruction.NotificationEndpointIdentifier} to delete");
             }
             
-            return await _subscriptionDataStore.DeleteSubscription(subscriptionResult.Value);
+            return await _subscriptionDataStore.DeleteSubscription(subscriptionResult.Value, cancellationToken);
         }
 
-        public async Task<List<Result>> DeleteSubscriptions(List<DeleteSubscriptionInstruction> deleteSubscriptionInstructions)
+        public async Task<List<Result>> DeleteSubscriptions(List<DeleteSubscriptionInstruction> deleteSubscriptionInstructions, CancellationToken cancellationToken)
         {
-            var tasks = deleteSubscriptionInstructions.Select(DeleteSubscription);
-            var results = await Task.WhenAll(tasks);
+            var results = new List<Result>();
+            foreach (var subscription in deleteSubscriptionInstructions)
+            {
+                var result = await DeleteSubscription(subscription, cancellationToken);
+                results.Add(result);
+            }
             return results.ToList();
         }
 
-        public async Task<Result<List<BusinessEntities.NotificationEndpoint>>> GetSubscribedNotificationEndpoints(string mediaName)
+        public async Task<Result<List<BusinessEntities.NotificationEndpoint>>> GetSubscribedNotificationEndpoints(string mediaName, CancellationToken cancellationToken)
         {
-            var result = await _subscriptionDataStore.GetSubscribedNotificationEndpoints(mediaName);
+            var result = await _subscriptionDataStore.GetSubscribedNotificationEndpoints(mediaName, cancellationToken);
             return result.IsSuccess
                 ? Result.Success(result.Value.Select(e => e.ToBusinessEntity()).ToList())
                 : Result.Failure<List<BusinessEntities.NotificationEndpoint>>(
                     $"Failed to get subscribed notificationEndpoints for media {mediaName}");
         }
 
-        public async Task<Result<List<BusinessEntities.Media>>> GetSubscribedToMedia(string notificationEndpointId)
+        public async Task<Result<List<BusinessEntities.Media>>> GetSubscribedToMedia(string notificationEndpointId, CancellationToken cancellationToken)
         {
-            var result =  await _subscriptionDataStore.GetSubscribedToMedia(notificationEndpointId);
+            var result =  await _subscriptionDataStore.GetSubscribedToMedia(notificationEndpointId, cancellationToken);
             return result.IsSuccess
                 ? Result.Success(result.Value.Select(m => m.ToBusinessEntity()).ToList())
                 : Result.Failure<List<BusinessEntities.Media>>(result.Error);

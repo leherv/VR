@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
@@ -20,62 +21,60 @@ namespace Persistence.DataStores
             _logger = logger;
         }
 
-        public async Task<Result> AddSubscription(Subscription subscription)
+        public async Task<Result> AddSubscription(Subscription subscription, CancellationToken cancellationToken)
         {
             try
             {
-                if (!await SubscriptionExists(subscription.Media.Id, subscription.NotificationEndpoint.Id))
+                if (!await SubscriptionExists(subscription.MediaId, subscription.NotificationEndpointId, cancellationToken))
                 {
-                    await _dbContext.Subscriptions.AddAsync(subscription);
-                    await _dbContext.SaveChangesAsync();
+                    await _dbContext.Subscriptions.AddAsync(subscription, cancellationToken);
+                    await _dbContext.SaveChangesAsync(cancellationToken);
                 }
-
                 return Result.Success();
             }
             catch (Exception e)
             {
                 _logger.LogInformation(
-                    "Adding subscription for notificationEndpoint with identifier {identifier} for media {mediaName} failed due to: {exceptionMessage}. ",
-                    subscription.NotificationEndpoint.Identifier,
-                    subscription.Media.MediaName,
+                    "Adding subscription for notificationEndpoint with id {id} for media with id {mediaId} failed due to: {exceptionMessage}. ",
+                    subscription.NotificationEndpointId,
+                    subscription.MediaId,
                     e.Message);
                 return Result.Failure("Adding the subscription to the database failed.");
             }
         }
 
-        public async Task<Result> DeleteSubscription(Subscription subscription)
+        public async Task<Result> DeleteSubscription(Subscription subscription, CancellationToken cancellationToken)
         {
             try
             {
                 _dbContext.Subscriptions.Remove(subscription);
-                await _dbContext.SaveChangesAsync();
+                await _dbContext.SaveChangesAsync(cancellationToken);
                 return Result.Success();
             }
             catch (Exception e)
             {
                 _logger.LogInformation(
-                    "Removing subscription for notificationEndpoint with identifier {identifier} for media {mediaName} failed due to: {exceptionMessage}. ",
-                    subscription.NotificationEndpoint.Identifier,
-                    subscription.Media.MediaName,
+                    "Removing subscription for notificationEndpoint with id {id} for media {mediaId} failed due to: {exceptionMessage}. ",
+                    subscription.NotificationEndpointId,
+                    subscription.MediaId,
                     e.Message);
                 return Result.Failure("Adding the subscription to the database failed.");
             }
                 
         }
 
-        private async Task<bool> SubscriptionExists(long mediaId, long notificationEndpointId)
+        private async Task<bool> SubscriptionExists(long mediaId, long notificationEndpointId, CancellationToken cancellationToken)
         {
-            return (await GetSubscription(mediaId, notificationEndpointId)).IsSuccess;
+            return (await GetSubscription(mediaId, notificationEndpointId, cancellationToken)).IsSuccess;
         }
 
-        public async Task<Result<Subscription>> GetSubscription(long mediaId, long notificationEndpointId)
+        public async Task<Result<Subscription>> GetSubscription(long mediaId, long notificationEndpointId, CancellationToken cancellationToken)
         {
             var subscription = await _dbContext.Subscriptions
-                .Include(s => s.Media)
-                .Include(s => s.NotificationEndpoint)
                 .FirstOrDefaultAsync(s =>
-                    s.Media.Id == mediaId &&
-                    s.NotificationEndpoint.Id == notificationEndpointId
+                    s.MediaId == mediaId &&
+                    s.NotificationEndpointId == notificationEndpointId,
+                    cancellationToken
                 );
             if (subscription == null)
             {
@@ -86,15 +85,18 @@ namespace Persistence.DataStores
             return Result.Success(subscription);
         }
 
-        public async Task<Result<List<NotificationEndpoint>>> GetSubscribedNotificationEndpoints(string mediaName)
+        public async Task<Result<List<NotificationEndpoint>>> GetSubscribedNotificationEndpoints(string mediaName, CancellationToken cancellationToken)
         {
             try
             {
-                var notificationEndpoints = await _dbContext.Subscriptions
-                    .Where(s => s.Media.MediaName.ToLower().Equals(mediaName.ToLower()))
-                    .Include(s => s.NotificationEndpoint)
-                    .Select(s => s.NotificationEndpoint)
-                    .ToListAsync();
+                var notificationEndpoints = await _dbContext.NotificationEndpoints
+                    .Include(n => n.Subscriptions)
+                    .ThenInclude(s => s.Media)
+                    .Where(n => n.Subscriptions
+                        .Select(s => s.Media.MediaName.ToLower())
+                        .Any(m => m.Equals(mediaName.ToLower()))
+                    )
+                    .ToListAsync(cancellationToken);
                 return Result.Success(notificationEndpoints);
             }
             catch (Exception e)
@@ -108,14 +110,14 @@ namespace Persistence.DataStores
             }
         }
 
-        public async Task<Result<List<Media>>> GetSubscribedToMedia(string notificationEndpointIdentifier)
+        public async Task<Result<List<Media>>> GetSubscribedToMedia(string notificationEndpointIdentifier, CancellationToken cancellationToken)
         {
             try
             {
                 var media =  await _dbContext.Subscriptions
                     .Where(s => s.NotificationEndpoint.Identifier == notificationEndpointIdentifier)
                     .Select(s => s.Media)
-                    .ToListAsync();
+                    .ToListAsync(cancellationToken);
                 return await Task.FromResult(media);
             }
             catch (Exception e)

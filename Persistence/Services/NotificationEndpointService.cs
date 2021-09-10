@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using Persistence.DataStores;
@@ -17,10 +18,10 @@ namespace Persistence.Services
             _logger = logger;
         }
 
-        public async Task<Result> AddNotificationEndpoint(BusinessEntities.NotificationEndpoint notificationEndpoint)
+        public async Task<Result> AddNotificationEndpoint(BusinessEntities.NotificationEndpoint notificationEndpoint, CancellationToken cancellationToken)
         {
             var notificationEndpointDao = new NotificationEndpoint(notificationEndpoint);
-            return await _notificationDataStore.AddNotificationEndpoint(notificationEndpointDao);
+            return await _notificationDataStore.AddNotificationEndpoint(notificationEndpointDao, cancellationToken);
         }
     }
 }

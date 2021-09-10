@@ -14,7 +14,7 @@ namespace Scraper.Services
     {
         private readonly ILogger<ScrapeService> _logger;
 
-        private readonly LaunchOptions _launchOptions = new LaunchOptions
+        private readonly LaunchOptions _launchOptions = new()
         {
             Headless = true,
             ExecutablePath = "/usr/bin/chromium",

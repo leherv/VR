@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using CSharpFunctionalExtensions;
@@ -18,12 +19,12 @@ namespace Persistence.DataStores
             _dbContext = dbContext;
         }
         
-        public async Task<Result<Media>> GetMedia(string mediaName)
+        public async Task<Result<Media>> GetMedia(string mediaName, CancellationToken cancellationToken)
         {
             var media = await _dbContext.Media
                 .Where(m => m.MediaName.ToLower().Equals(mediaName.ToLower()))
                 .Take(1)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
             return media.Count == 1
                 ? Result.Success(media[0])
                 : Result.Failure<Media>($"There are {media.Count.ToString()} media with mediaName {mediaName}.");

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using BusinessEntities;
 using CSharpFunctionalExtensions;
@@ -7,11 +8,11 @@ namespace Persistence.Services
 {
     public interface ISubscriptionService
     {
-        Task<Result> AddSubscription(Subscription subscription);
-        Task<List<Result>> AddSubscriptions(List<Subscription> subscriptions);
-        Task<Result<List<NotificationEndpoint>>> GetSubscribedNotificationEndpoints(string mediaName);
-        Task<Result<List<Media>>> GetSubscribedToMedia(string notificationEndpointId);
-        Task<Result> DeleteSubscription(DeleteSubscriptionInstruction deleteSubscriptionInstruction);
-        Task<List<Result>> DeleteSubscriptions(List<DeleteSubscriptionInstruction> deleteSubscriptionInstructions);
+        Task<Result> AddSubscription(Subscription subscription, CancellationToken cancellationToken);
+        Task<List<Result>> AddSubscriptions(List<Subscription> subscriptions, CancellationToken cancellationToken);
+        Task<Result<List<NotificationEndpoint>>> GetSubscribedNotificationEndpoints(string mediaName, CancellationToken cancellationToken);
+        Task<Result<List<Media>>> GetSubscribedToMedia(string notificationEndpointId, CancellationToken cancellationToken);
+        Task<Result> DeleteSubscription(DeleteSubscriptionInstruction deleteSubscriptionInstruction, CancellationToken cancellationToken);
+        Task<List<Result>> DeleteSubscriptions(List<DeleteSubscriptionInstruction> deleteSubscriptionInstructions, CancellationToken cancellationToken);
     }
 }

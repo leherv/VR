@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BusinessEntities;
 using Common.Config;
@@ -51,7 +53,7 @@ namespace VRNotifier.Commands
         [Command("listSubscribed")]
         public async Task ListSubscribed()
         {
-            var result = await _subscriptionService.GetSubscribedToMedia(GetNotificationEndpointNotifierIdentifier(Context));
+            var result = await _subscriptionService.GetSubscribedToMedia(GetNotificationEndpointNotifierIdentifier(Context), CancellationToken.None);
             string message;
             if (result.IsSuccess)
             {
@@ -75,7 +77,7 @@ namespace VRNotifier.Commands
                 await Context.Channel.SendMessageAsync("Nothing to do.");
             }
             var notificationEndpointNotifierIdentifier = GetNotificationEndpointNotifierIdentifier(Context);
-            var notificationEndpointResult = await _notificationEndpointService.AddNotificationEndpoint(new NotificationEndpoint(notificationEndpointNotifierIdentifier));
+            var notificationEndpointResult = await _notificationEndpointService.AddNotificationEndpoint(new NotificationEndpoint(notificationEndpointNotifierIdentifier, new List<Subscription>()), CancellationToken.None);
             var message = "Something went wrong";
             if (notificationEndpointResult.IsSuccess)
             {
@@ -83,7 +85,7 @@ namespace VRNotifier.Commands
                     .Select(mediaName => new Subscription(mediaName, notificationEndpointNotifierIdentifier))
                     .ToList();
 
-                var result = await _subscriptionService.AddSubscriptions(subscriptions);
+                var result = await _subscriptionService.AddSubscriptions(subscriptions, CancellationToken.None);
                 if (result.All(r => r.IsSuccess))
                     message = "Successfully subscribed";
             }
@@ -102,7 +104,7 @@ namespace VRNotifier.Commands
                 .Select(mediaName => new DeleteSubscriptionInstruction(mediaName, notificationEndpointNotifierIdentifier))
                 .ToList();
             // TODO: when creating facade call this unscubscribe
-            var result = await _subscriptionService.DeleteSubscriptions(deleteSubscriptionInstructions);
+            var result = await _subscriptionService.DeleteSubscriptions(deleteSubscriptionInstructions, CancellationToken.None);
             var message = result.Any(r => r.IsFailure)
                 ? "Something went wrong."
                 : "Successfully unsubscribed.";

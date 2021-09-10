@@ -1,20 +1,18 @@
-﻿namespace BusinessEntities
+﻿using System.Collections.Generic;
+
+namespace BusinessEntities
 {
     public class Media
     {
-        public long Id { get; set; }
         public string MediaName { get; set; }
         public string Description { get; set; }
-
-        public Media(string mediaName)
-        {
-            MediaName = mediaName;
-        }
-
-        public Media(string mediaName, string description)
+        public IList<Subscription> Subscriptions { get; set; }
+        
+        public Media(string mediaName, string description, IList<Subscription> subscriptions)
         {
             MediaName = mediaName;
             Description = description;
+            Subscriptions = subscriptions;
         }
 
         public Media() {}

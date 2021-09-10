@@ -1,4 +1,6 @@
-﻿namespace BusinessEntities
+﻿using System.Collections.Generic;
+
+namespace BusinessEntities
 {
     public class Subscription
     {
@@ -13,8 +15,8 @@
 
         public Subscription(string mediaName, string notificationEndpointIdentifier)
         {
-            Media = new Media(mediaName);
-            NotificationEndpoint = new NotificationEndpoint(notificationEndpointIdentifier);
+            Media = new Media(mediaName, string.Empty, new List<Subscription>());
+            NotificationEndpoint = new NotificationEndpoint(notificationEndpointIdentifier, new List<Subscription>());
         }
     }
 }

@@ -25,7 +25,8 @@ namespace VRNotifier.Services
         public DiscordService(CommandHandlingService commandHandlingService,
             DiscordSocketClient client,
             IOptions<DiscordSettings> discordSettings,
-            ILogger<DiscordService> logger)
+            ILogger<DiscordService> logger
+        )
         {
             _commandHandlingService = commandHandlingService;
             _client = client;

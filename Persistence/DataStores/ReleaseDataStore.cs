@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
@@ -20,38 +21,38 @@ namespace Persistence.DataStores
             _logger = logger;
         }
 
-        public async Task<Result<List<Release>>> GetNotNotified(string mediaName)
+        public async Task<Result<List<Release>>> GetNotNotified(string mediaName, CancellationToken cancellationToken)
         {
             var releases = await _dbContext.Releases
                 .Include(r => r.Media)
                 .Where(r => r.Media.MediaName.ToLower().Equals(mediaName.ToLower()) &&
                        !r.Notified)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
             return Result.Success(releases);
         }
         
-        public async Task<Result<Release>> GetRelease(string mediaName, int releaseNumber)
+        public async Task<Result<Release>> GetRelease(string mediaName, int releaseNumber, CancellationToken cancellationToken)
         {
             var release = await _dbContext.Releases
                 .Include(r => r.Media)
-                .FirstOrDefaultAsync(r => r.Media.MediaName == mediaName && r.ReleaseNumber == releaseNumber);
+                .FirstOrDefaultAsync(r => r.Media.MediaName == mediaName && r.ReleaseNumber == releaseNumber, cancellationToken);
             return release == null ? Result.Failure<Release>("No release found") : Result.Success(release);
         }
         
-        public async Task<Result<Release>> GetRelease(long id)
+        public async Task<Result<Release>> GetRelease(long id, CancellationToken cancellationToken)
         {
             var release = await _dbContext.Releases
                 .Include(r => r.Media)
-                .FirstOrDefaultAsync(r => r.Id == id);
+                .FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
             return release == null ? Result.Failure<Release>("No release found") : Result.Success(release);
         }
         
-        public async Task<Result> AddRelease(Release release)
+        public async Task<Result> AddRelease(Release release, CancellationToken cancellationToken)
         {
             try
             {
-                await _dbContext.Releases.AddAsync(release);
-                await _dbContext.SaveChangesAsync();
+                await _dbContext.Releases.AddAsync(release, cancellationToken);
+                await _dbContext.SaveChangesAsync(cancellationToken);
                 return Result.Success();
             }
             catch (Exception e)
@@ -61,7 +62,7 @@ namespace Persistence.DataStores
             }
         }
         
-        public async Task<Result<Release>> GetNewestReleaseForMedia(string mediaName)
+        public async Task<Result<Release>> GetNewestReleaseForMedia(string mediaName, CancellationToken cancellationToken)
         {
             try
             {
@@ -70,7 +71,7 @@ namespace Persistence.DataStores
                     .Include(r => r.Media)
                     .OrderByDescending(r => r.ReleaseNumber)
                     .Take(1)
-                    .ToListAsync();
+                    .ToListAsync(cancellationToken);
                 return newestRelease.Count == 1
                     ? Result.Success(newestRelease[0])
                     : Result.Success<Release>(null);
@@ -82,12 +83,12 @@ namespace Persistence.DataStores
             }
         }
 
-        public async Task<Result> SetNotified(Release release)
+        public async Task<Result> SetNotified(Release release, CancellationToken cancellationToken)
         {
             try
             {
                 release.Notified = true;
-                await _dbContext.SaveChangesAsync();
+                await _dbContext.SaveChangesAsync(cancellationToken);
                 return Result.Success();
             }
             catch (Exception e)

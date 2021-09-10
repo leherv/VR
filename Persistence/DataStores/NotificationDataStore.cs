@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
@@ -18,14 +19,14 @@ namespace Persistence.DataStores
             _logger = logger;
         }
 
-        public async Task<Result> AddNotificationEndpoint(NotificationEndpoint notificationEndpoint)
+        public async Task<Result> AddNotificationEndpoint(NotificationEndpoint notificationEndpoint, CancellationToken cancellationToken)
         {
             try
             {
-                if (!await NotificationEndpointExists(notificationEndpoint.Identifier))
+                if (!await NotificationEndpointExists(notificationEndpoint.Identifier, cancellationToken))
                 {
-                    await _dbContext.AddAsync(notificationEndpoint);
-                    await _dbContext.SaveChangesAsync();
+                    await _dbContext.AddAsync(notificationEndpoint, cancellationToken);
+                    await _dbContext.SaveChangesAsync(cancellationToken);
                 }
                
                 return Result.Success();
@@ -39,17 +40,17 @@ namespace Persistence.DataStores
             }
         }
         
-        private async Task<bool> NotificationEndpointExists(string identifier)
+        private async Task<bool> NotificationEndpointExists(string identifier, CancellationToken cancellationToken)
         {
-            return (await GetNotificationEndpoint(identifier)).IsSuccess;
+            return (await GetNotificationEndpoint(identifier, cancellationToken)).IsSuccess;
         }
         
-        public async Task<Result<NotificationEndpoint>> GetNotificationEndpoint(string identifier)
+        public async Task<Result<NotificationEndpoint>> GetNotificationEndpoint(string identifier, CancellationToken cancellationToken)
         {
             try
             {
                 var endpoint = await _dbContext.NotificationEndpoints
-                    .FirstOrDefaultAsync(n => n.Identifier.Equals(identifier));
+                    .FirstOrDefaultAsync(n => n.Identifier.Equals(identifier), cancellationToken);
                  if (endpoint == null)
                  {
                      return Result.Failure<NotificationEndpoint>(

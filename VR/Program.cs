@@ -33,7 +33,7 @@ namespace VR
                 .ConfigureServices((hostContext, services) =>
                 {
                     // VRScraper
-                    services.AddSingleton<IScrapeService, ScrapeService>();
+                    services.AddScoped<IScrapeService, ScrapeService>();
 
                     // VRNotifier
                     services.Configure<TrackedMediaSettings>(
@@ -44,21 +44,21 @@ namespace VR
                     services.AddSingleton<DiscordSocketClient>();
                     services.AddSingleton<CommandService>();
                     services.AddSingleton<CommandHandlingService>();
+                    services.AddSingleton<INotificationService, DiscordService>();
                     services.AddSingleton<DiscordService>();
-                    services.AddHostedService(provider => provider.GetRequiredService<DiscordService>());
+                    services.AddHostedService<DiscordService>();
 
                     // VRPersistence
                     services.AddDbContext<VRPersistenceDbContext>(options =>
                             options.UseNpgsql(hostContext.Configuration.GetConnectionString("Db"),
-                                o => { o.MigrationsAssembly(PersistenceAssemblyMarker.GetAssemblyName); }),
-                        ServiceLifetime.Transient);
-                    services.AddSingleton<IReleaseService, ReleaseService>();
-                    services.AddSingleton<IReleaseDataStore, ReleaseDataStore>();
-                    services.AddSingleton<INotificationEndpointService, NotificationEndpointService>();
-                    services.AddSingleton<INotificationDataStore, NotificationDataStore>();
-                    services.AddSingleton<IMediaDataStore, MediaDataStore>();
-                    services.AddSingleton<ISubscriptionService, SubscriptionService>();
-                    services.AddSingleton<ISubscriptionDataStore, SubscriptionDataStore>();
+                                o => { o.MigrationsAssembly(PersistenceAssemblyMarker.GetAssemblyName); }));
+                    services.AddScoped<IReleaseService, ReleaseService>();
+                    services.AddScoped<IReleaseDataStore, ReleaseDataStore>();
+                    services.AddScoped<INotificationEndpointService, NotificationEndpointService>();
+                    services.AddScoped<INotificationDataStore, NotificationDataStore>();
+                    services.AddScoped<IMediaDataStore, MediaDataStore>();
+                    services.AddScoped<ISubscriptionService, SubscriptionService>();
+                    services.AddScoped<ISubscriptionDataStore, SubscriptionDataStore>();
 
                     // VROrchestrator
                     services.Configure<OrchestratorServiceSettings>(

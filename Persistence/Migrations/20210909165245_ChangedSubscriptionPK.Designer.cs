@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Persistence;
@@ -9,9 +10,10 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(VRPersistenceDbContext))]
-    partial class VRPersistenceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210909165245_ChangedSubscriptionPK")]
+    partial class ChangedSubscriptionPK
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,9 +23,9 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Persistence.DbEntities.Media", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("bigint")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Description")
@@ -42,9 +44,9 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Persistence.DbEntities.NotificationEndpoint", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("bigint")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Identifier")
@@ -60,13 +62,13 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Persistence.DbEntities.Release", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("bigint")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int?>("MediaId")
-                        .HasColumnType("integer");
+                    b.Property<long?>("MediaId")
+                        .HasColumnType("bigint");
 
                     b.Property<bool>("Notified")
                         .HasColumnType("boolean");
@@ -89,11 +91,11 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Persistence.DbEntities.Subscription", b =>
                 {
-                    b.Property<int>("MediaId")
-                        .HasColumnType("integer");
+                    b.Property<long>("MediaId")
+                        .HasColumnType("bigint");
 
-                    b.Property<int>("NotificationEndpointId")
-                        .HasColumnType("integer");
+                    b.Property<long>("NotificationEndpointId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("MediaId", "NotificationEndpointId");
 
@@ -114,13 +116,13 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Persistence.DbEntities.Subscription", b =>
                 {
                     b.HasOne("Persistence.DbEntities.Media", "Media")
-                        .WithMany("Subscriptions")
+                        .WithMany()
                         .HasForeignKey("MediaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Persistence.DbEntities.NotificationEndpoint", "NotificationEndpoint")
-                        .WithMany("Subscriptions")
+                        .WithMany()
                         .HasForeignKey("NotificationEndpointId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -128,16 +130,6 @@ namespace Persistence.Migrations
                     b.Navigation("Media");
 
                     b.Navigation("NotificationEndpoint");
-                });
-
-            modelBuilder.Entity("Persistence.DbEntities.Media", b =>
-                {
-                    b.Navigation("Subscriptions");
-                });
-
-            modelBuilder.Entity("Persistence.DbEntities.NotificationEndpoint", b =>
-                {
-                    b.Navigation("Subscriptions");
                 });
 #pragma warning restore 612, 618
         }
