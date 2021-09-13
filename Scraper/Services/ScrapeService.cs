@@ -1,29 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using BusinessEntities;
 using CSharpFunctionalExtensions;
+using Fizzler.Systems.HtmlAgilityPack;
+using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
-using PuppeteerSharp;
 
 namespace Scraper.Services
 {
     public class ScrapeService : IScrapeService
     {
         private readonly ILogger<ScrapeService> _logger;
-
-        private readonly LaunchOptions _launchOptions = new()
-        {
-            Headless = true,
-            ExecutablePath = "/usr/bin/chromium",
-            Args = new[] {
-                "--headless",
-                "--no-sandbox"
-            }
-        };
-
+        
         public ScrapeService(ILogger<ScrapeService> logger)
         {
             _logger = logger;
@@ -56,15 +48,12 @@ namespace Scraper.Services
             try
             {
                 _logger.LogInformation($"Starting scraping for media {mediaName}...");
-                await using var browser = await Puppeteer.LaunchAsync(_launchOptions);
-                await using var page = await browser.NewPageAsync();
-                page.DefaultTimeout = 50000;
-                await page.GoToAsync(url);
-                var container = await page.WaitForSelectorAsync("div.panel-story-chapter-list",
-                    new WaitForSelectorOptions {Visible = true});
-                var newestLink = await container.QuerySelectorAsync("ul.row-content-chapter > li.a-h > a");
-                var chapterUrlHandle = await newestLink.GetPropertyAsync("href");
-                var chapterUrl = (string) await chapterUrlHandle.JsonValueAsync();
+                await using var fileStream = File.OpenRead($"{mediaName}.html");
+                var html = new HtmlDocument();
+                html.Load(fileStream);
+                var document = html.DocumentNode;
+                var newestLink = document.QuerySelector("div.panel-story-chapter-list ul.row-content-chapter > li.a-h > a");
+                var chapterUrl = newestLink.GetAttributeValue("href", null);
                 var regexResult = Regex.Match(chapterUrl, @"chapter-(\d{1,4})\.*(\d{0,4})");
                 var releaseNumberString = regexResult.Groups[1].Value;
                 var subReleaseNumberString = regexResult.Groups[2].Value;

@@ -1,19 +1,20 @@
 ﻿<component name="ProjectRunConfigurationManager">
   <configuration default="false" name="VR template" type="DotNetProject" factoryName=".NET Project">
-    <option name="EXE_PATH" value="$PROJECT_DIR$/VR/bin/Debug/net5.0/VR.exe" />
+    <option name="EXE_PATH" value="$PROJECT_DIR$/VR/bin/Debug/net5.0/VR.dll" />
     <option name="PROGRAM_PARAMETERS" value="" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/VR/bin/Debug/net5.0" />
     <option name="PASS_PARENT_ENVS" value="1" />
     <envs>
-      <env name="VR_VRORCHESTRATORSERVICESETTINGS__SCRAPEINTERVALMINUTES" value="10" />
-      <env name="VR_NOTIFIERSETTINGS__DISCORDSETTINGS__APIKEY" value="&quot;your token here&quot;" />
-      <env name="VR_CONNECTIONSTRINGS__DB" value="Host=192.168.0.151;Port=5432;Database=vrpersistence;Username=postgres;Password=admin" />
-      <env name="VR_PERSISTENCESETTINGS__DBPORT" value="5432" />
-      <env name="VR_PERSISTENCESETTINGS__DBNAME" value="vrpersistence" />
       <env name="VR_PERSISTENCESETTINGS__DBUSERNAME" value="postgres" />
+      <env name="VR_CONNECTIONSTRINGS__DB" value="Host=192.168.0.151;Port=5432;Database=vrpersistence;Username=postgres;Password=admin" />
+      <env name="VR_SCRAPESETTINGS__CHROMEPATH" value="C:\\Program Files (x86)\\Google\\Chrome\\Application" />
+      <env name="VR_NOTIFIERSETTINGS__DISCORDSETTINGS__APIKEY" value="&quot;your token here&quot;" />
+      <env name="VR_PERSISTENCESETTINGS__DBPORT" value="5432" />
+      <env name="VR_PERSISTENCESETTINGS__DBDATADIR" value="./pg_data" />
+      <env name="VR_SCRAPESETTINGS__SCRAPEINTERVALMINUTES" value="5" />
       <env name="VR_PERSISTENCESETTINGS__DBPASSWORD" value="admin" />
       <env name="VR_PERSISTENCESETTINGS__DBVOLUMENAME" value="vrpersistence" />
-      <env name="VR_PERSISTENCESETTINGS__DBDATADIR" value="./pg_data" />
+      <env name="VR_PERSISTENCESETTINGS__DBNAME" value="vrpersistence" />
     </envs>
     <option name="USE_EXTERNAL_CONSOLE" value="0" />
     <option name="USE_MONO" value="0" />

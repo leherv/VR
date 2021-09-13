@@ -11,14 +11,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Persistence.Services;
 using Scraper.Services;
-using VR.Config;
 using VRNotifier.Services;
 
 namespace VR.Services
 {
     public class VROrchestratorService: BackgroundService
     {
-        private readonly OrchestratorServiceSettings _orchestratorServiceSettings;
+        private readonly ScrapeSettings _scrapeSettings;
         private readonly TrackedMediaSettings _trackedMediaSettings;
         private readonly ILogger<VROrchestratorService> _logger;
         private readonly INotificationService _notificationService;
@@ -29,7 +28,7 @@ namespace VR.Services
 
 
         public VROrchestratorService(
-            IOptions<OrchestratorServiceSettings> orchestratorServiceSettings,
+            IOptions<ScrapeSettings> scrapeSettings,
             IOptions<TrackedMediaSettings> trackedMediaSettings,
             ILogger<VROrchestratorService> logger,
             IServiceProvider serviceProvider,
@@ -37,7 +36,7 @@ namespace VR.Services
         )
         {
             _trackedMediaSettings = trackedMediaSettings.Value;
-            _orchestratorServiceSettings = orchestratorServiceSettings.Value;
+            _scrapeSettings = scrapeSettings.Value;
             _logger = logger;
             _serviceProvider = serviceProvider;
             _notificationService = notificationService;
@@ -53,10 +52,10 @@ namespace VR.Services
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError("Something went wrong: {exception}\n {innerException}", e.Message, e.InnerException?.Message);
+                    _logger.LogError($"Something went wrong in {nameof(VROrchestratorService)}: {e.Message}\n {e.InnerException?.Message}");
                 }
                 await Task.Delay(
-                    TimeSpan.FromMinutes(_orchestratorServiceSettings.ScrapeIntervalMinutes),
+                    TimeSpan.FromMinutes(_scrapeSettings.ScrapeIntervalMinutes - 1),
                     stoppingToken);
             } while (!stoppingToken.IsCancellationRequested);
         }
@@ -106,7 +105,13 @@ namespace VR.Services
                     _logger.LogError("Notifying endpoints for new release of media {mediaName} failed due to {message}", successFullyPersistedScrapeResult?.MediaName, subscribedEndpointsResult.Error);
             }
         }
-        
+
+        public override Task StartAsync(CancellationToken cancellationToken)
+        {
+            _logger.LogInformation($"{nameof(VROrchestratorService)} is starting.");
+            return base.StartAsync(cancellationToken);
+        }
+
         public override async Task StopAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation($"{nameof(VROrchestratorService)} is stopping.");
