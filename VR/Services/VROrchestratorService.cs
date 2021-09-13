@@ -11,13 +11,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Persistence.Services;
 using Scraper.Services;
+using VR.Config;
 using VRNotifier.Services;
 
 namespace VR.Services
 {
     public class VROrchestratorService: BackgroundService
     {
-        private readonly ScrapeSettings _scrapeSettings;
+        private readonly OrchestratorServiceSettings _orchestratorServiceSettings;
         private readonly TrackedMediaSettings _trackedMediaSettings;
         private readonly ILogger<VROrchestratorService> _logger;
         private readonly INotificationService _notificationService;
@@ -28,7 +29,7 @@ namespace VR.Services
 
 
         public VROrchestratorService(
-            IOptions<ScrapeSettings> scrapeSettings,
+            IOptions<OrchestratorServiceSettings> orchestratorServiceSettings,
             IOptions<TrackedMediaSettings> trackedMediaSettings,
             ILogger<VROrchestratorService> logger,
             IServiceProvider serviceProvider,
@@ -36,7 +37,7 @@ namespace VR.Services
         )
         {
             _trackedMediaSettings = trackedMediaSettings.Value;
-            _scrapeSettings = scrapeSettings.Value;
+            _orchestratorServiceSettings = orchestratorServiceSettings.Value;
             _logger = logger;
             _serviceProvider = serviceProvider;
             _notificationService = notificationService;
@@ -55,7 +56,7 @@ namespace VR.Services
                     _logger.LogError($"Something went wrong in {nameof(VROrchestratorService)}: {e.Message}\n {e.InnerException?.Message}");
                 }
                 await Task.Delay(
-                    TimeSpan.FromMinutes(_scrapeSettings.ScrapeIntervalMinutes - 1),
+                    TimeSpan.FromMinutes(_orchestratorServiceSettings.ScrapeIntervalMinutes),
                     stoppingToken);
             } while (!stoppingToken.IsCancellationRequested);
         }

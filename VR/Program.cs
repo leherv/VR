@@ -9,7 +9,9 @@ using Microsoft.Extensions.Hosting;
 using Persistence;
 using Persistence.DataStores;
 using Persistence.Services;
+using Scraper.Config;
 using Scraper.Services;
+using VR.Config;
 using VR.Services;
 using VRNotifier.Services;
 
@@ -35,7 +37,6 @@ namespace VR
                     services.Configure<ScrapeSettings>(
                         hostContext.Configuration.GetSection(nameof(ScrapeSettings)));
                     services.AddScoped<IScrapeService, ScrapeService>();
-                    services.AddHostedService<ScrapeDataFetcher>();
 
                     // VRNotifier
                     services.Configure<TrackedMediaSettings>(
@@ -64,6 +65,8 @@ namespace VR
 
                     // VROrchestrator
                     services.AddHostedService<VROrchestratorService>();
+                    services.Configure<OrchestratorServiceSettings>(
+                        hostContext.Configuration.GetSection(nameof(OrchestratorServiceSettings)));
                 });
     }
 }

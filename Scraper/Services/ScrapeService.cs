@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using BusinessEntities;
@@ -9,16 +10,20 @@ using CSharpFunctionalExtensions;
 using Fizzler.Systems.HtmlAgilityPack;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Scraper.Config;
 
 namespace Scraper.Services
 {
     public class ScrapeService : IScrapeService
     {
         private readonly ILogger<ScrapeService> _logger;
+        private readonly ScrapeSettings _scrapeSettings;
         
-        public ScrapeService(ILogger<ScrapeService> logger)
+        public ScrapeService(ILogger<ScrapeService> logger, IOptions<ScrapeSettings> scrapeSettings)
         {
             _logger = logger;
+            _scrapeSettings = scrapeSettings.Value;
         }
 
         public async Task<Result<ScrapeResult>> Scrape(ScrapeInstruction scrapeInstruction)
@@ -43,10 +48,40 @@ namespace Scraper.Services
             return results.ToList();
         }
 
+        private async Task FetchResource(string url, string mediaName)
+        {
+            var fileName = $"{mediaName.ToLower()}.html";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                var chromeExecutable = Path.Combine(_scrapeSettings.ChromePath, "chromium");
+                var strCmdText =
+                    $"'--headless --disable-dev-shm-usage --disable-setuid-sandbox --no-sandbox --disable-gpu --dump-dom {url} > {fileName}'";
+                Console.WriteLine(strCmdText);
+                var p = System.Diagnostics.Process.Start(chromeExecutable, strCmdText);
+                if (p != null) await p.WaitForExitAsync();
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var chromeExecutable = Path.Combine(_scrapeSettings.ChromePath, "chrome.exe");
+                var strCmdText =
+                    $"/C \"{chromeExecutable}\" --headless --no-sandbox --disable-gpu --dump-dom {url} > {fileName} && icacls {fileName} /t /grant Everyone:F";
+                var p =System.Diagnostics.Process.Start("CMD.exe", strCmdText);
+                if (p != null) await p.WaitForExitAsync();
+            }
+            else
+            {
+                throw new SystemException("OS not supported");
+            }
+        }
+
         private async Task<Result<ScrapeResult>> ScrapeManganelo(string url, string mediaName)
         {
             try
             {
+                _logger.LogInformation($"Fetching resource for media {mediaName}");
+                await FetchResource(url, mediaName);
+                _logger.LogInformation($"Finished fetching resource for media {mediaName}");
+
                 _logger.LogInformation($"Starting scraping for media {mediaName}...");
                 await using var fileStream = File.OpenRead($"{mediaName}.html");
                 var html = new HtmlDocument();

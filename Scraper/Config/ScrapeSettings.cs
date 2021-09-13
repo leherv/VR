@@ -1,8 +1,7 @@
-﻿namespace Common.Config
+﻿namespace Scraper.Config
 {
     public class ScrapeSettings
     {
         public string ChromePath { get; set; }
-        public int ScrapeIntervalMinutes { get; set; }
     }
 }

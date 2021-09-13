@@ -13,8 +13,6 @@ FROM mcr.microsoft.com/dotnet/sdk:5.0
 RUN apt-get update && apt-get -f install && apt-get -y install dumb-init wget gnupg2 apt-utils
 RUN apt-get install -y chromium fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst \
       --no-install-recommends
-# set path to chromium executable
-ENV PUPPETEER_EXECUTABLE_PATH "/usr/bin/chromium"
 
 WORKDIR /app
 COPY --from=build-env /app/out .
