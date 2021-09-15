@@ -43,9 +43,23 @@ namespace Scraper.Services
 
         public async Task<List<Result<ScrapeResult>>> Scrape(List<ScrapeInstruction> scrapeInstructions)
         {
-            var tasks = scrapeInstructions.Select(Scrape);
-            var results = await Task.WhenAll(tasks);
-            return results.ToList();
+            var results = new List<Result<ScrapeResult>>();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                foreach (var scrapeInstruction in scrapeInstructions)
+                {
+                    var result = await Scrape(scrapeInstruction);
+                    results.Add(result);
+                }
+            }
+            else
+            {
+                var tasks = scrapeInstructions.Select(Scrape);
+                results = (await Task.WhenAll(tasks)).ToList();
+                return results.ToList();
+            }
+
+            return results;
         }
 
         private async Task FetchResource(string url, string mediaName)
