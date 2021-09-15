@@ -55,7 +55,7 @@ namespace Scraper.Services
             {
                 var chromeExecutable = Path.Combine(_scrapeSettings.ChromePath, "chromium");
                 var strCmdText =
-                    $"'--headless --disable-dev-shm-usage --disable-setuid-sandbox --no-sandbox --disable-gpu --dump-dom {url} > {fileName}'";
+                    $"--headless --disable-dev-shm-usage --disable-setuid-sandbox --no-sandbox --disable-gpu --dump-dom {url} > {fileName}";
                 Console.WriteLine(strCmdText);
                 var p = System.Diagnostics.Process.Start(chromeExecutable, strCmdText);
                 if (p != null) await p.WaitForExitAsync();

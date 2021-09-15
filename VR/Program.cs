@@ -30,7 +30,11 @@ namespace VR
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((context, config) => config.AddEnvironmentVariables("VR_"))
+                .ConfigureAppConfiguration((context, config) =>
+                {
+                    config.AddJsonFile("appsettings.json", optional: false);
+                    config.AddEnvironmentVariables("VR_");
+                })
                 .ConfigureServices((hostContext, services) =>
                 {
                     // Common
