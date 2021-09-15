@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -43,23 +44,9 @@ namespace Scraper.Services
 
         public async Task<List<Result<ScrapeResult>>> Scrape(List<ScrapeInstruction> scrapeInstructions)
         {
-            var results = new List<Result<ScrapeResult>>();
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                foreach (var scrapeInstruction in scrapeInstructions)
-                {
-                    var result = await Scrape(scrapeInstruction);
-                    results.Add(result);
-                }
-            }
-            else
-            {
-                var tasks = scrapeInstructions.Select(Scrape);
-                results = (await Task.WhenAll(tasks)).ToList();
-                return results.ToList();
-            }
-
-            return results;
+            var tasks = scrapeInstructions.Select(Scrape);
+            var results = await Task.WhenAll(tasks);
+            return results.ToList();
         }
 
         private async Task FetchResource(string url, string mediaName)
@@ -67,12 +54,31 @@ namespace Scraper.Services
             var fileName = $"{mediaName.ToLower()}.html";
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
+                var outputStream = new StreamWriter($"{mediaName}.html");
                 var chromeExecutable = Path.Combine(_scrapeSettings.ChromePath, "chromium");
-                var strCmdText =
-                    $"--headless --disable-dev-shm-usage --disable-setuid-sandbox --no-sandbox --disable-gpu --dump-dom {url} > {fileName}";
+                // reason for not just piping output: always getting opening multiple tabs not supported -- solution: only single command and using OutPutDataReceived event to capture output
+                // see: https://stackoverflow.com/questions/16256587/redirecting-output-to-the-text-file-c-sharp
+                var strCmdText = $"--headless --no-sandbox --disable-gpu --dump-dom {url}";
                 Console.WriteLine(strCmdText);
-                var p = System.Diagnostics.Process.Start(chromeExecutable, strCmdText);
-                if (p != null) await p.WaitForExitAsync();
+                var process = new Process();
+                process.StartInfo = new ProcessStartInfo
+                {
+                    FileName = chromeExecutable,
+                    Arguments = strCmdText,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true
+                };
+                process.OutputDataReceived += (sender, e) =>
+                {
+                    if (!string.IsNullOrEmpty(e.Data))
+                    {
+                        outputStream.WriteLine(e.Data);
+                    }
+                };
+                process.Start();
+                process.BeginOutputReadLine();
+                await process.WaitForExitAsync();
+                outputStream.Close();
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {

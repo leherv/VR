@@ -4,7 +4,9 @@ services:
   vr:
     container_name: vr
     image: vr:latest
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile_arm32v7
     environment:
       VR_NOTIFIERSETTINGS__DISCORDSETTINGS__APIKEY: "${VR_NOTIFIERSETTINGS__DISCORDSETTINGS__APIKEY}"
       VR_ORCHESTRATORSERVICESETTINGS__SCRAPEINTERVALMINUTES: "${VR_ORCHESTRATORSERVICESETTINGS__SCRAPEINTERVALMINUTES}"
