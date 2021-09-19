@@ -70,6 +70,7 @@ namespace Persistence.DataStores
                     .Where(r => r.Media.MediaName.ToLower().Equals(mediaName.ToLower()))
                     .Include(r => r.Media)
                     .OrderByDescending(r => r.ReleaseNumber)
+                    .ThenByDescending(r => r.SubReleaseNumber)
                     .Take(1)
                     .ToListAsync(cancellationToken);
                 return newestRelease.Count == 1
