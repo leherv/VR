@@ -18,9 +18,10 @@ ProjectSection(SolutionItems) = preProject
 	docker-compose-optionC.yaml = docker-compose-optionC.yaml
 	docker-compose-optionB.yaml = docker-compose-optionB.yaml
 	docker-compose.yaml = docker-compose.yaml
-	Dockerfile = Dockerfile
+	Dockerfile_x86_64 = Dockerfile_x86_64
 	README.md = README.md
 	.env.example = .env.example
+	Dockerfile_arm32v7 = Dockerfile_arm32v7
 EndProjectSection
 EndProject
 Global

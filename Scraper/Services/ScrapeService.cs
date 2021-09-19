@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -53,12 +54,31 @@ namespace Scraper.Services
             var fileName = $"{mediaName.ToLower()}.html";
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
+                var outputStream = new StreamWriter($"{mediaName}.html");
                 var chromeExecutable = Path.Combine(_scrapeSettings.ChromePath, "chromium");
-                var strCmdText =
-                    $"'--headless --disable-dev-shm-usage --disable-setuid-sandbox --no-sandbox --disable-gpu --dump-dom {url} > {fileName}'";
+                // reason for not just piping output: always getting opening multiple tabs not supported -- solution: only single command and using OutPutDataReceived event to capture output
+                // see: https://stackoverflow.com/questions/16256587/redirecting-output-to-the-text-file-c-sharp
+                var strCmdText = $"--headless --no-sandbox --disable-gpu --dump-dom {url}";
                 Console.WriteLine(strCmdText);
-                var p = System.Diagnostics.Process.Start(chromeExecutable, strCmdText);
-                if (p != null) await p.WaitForExitAsync();
+                var process = new Process();
+                process.StartInfo = new ProcessStartInfo
+                {
+                    FileName = chromeExecutable,
+                    Arguments = strCmdText,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true
+                };
+                process.OutputDataReceived += (sender, e) =>
+                {
+                    if (!string.IsNullOrEmpty(e.Data))
+                    {
+                        outputStream.WriteLine(e.Data);
+                    }
+                };
+                process.Start();
+                process.BeginOutputReadLine();
+                await process.WaitForExitAsync();
+                outputStream.Close();
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {

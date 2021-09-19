@@ -41,6 +41,11 @@ namespace VR.Services
             _logger = logger;
             _serviceProvider = serviceProvider;
             _notificationService = notificationService;
+            if (!_trackedMediaSettings?.MediaNames?.Any() ?? true)
+            {
+                _logger.LogError($"{nameof(TrackedMediaSettings)}.{nameof(TrackedMediaSettings.MediaNames)} must be configured.");
+                throw new ArgumentException($"{nameof(TrackedMediaSettings)}.{nameof(TrackedMediaSettings.MediaNames)} must be configured.");
+            }
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

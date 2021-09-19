@@ -30,20 +30,25 @@ namespace VR
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((context, config) => config.AddEnvironmentVariables("VR_"))
+                .ConfigureAppConfiguration((context, config) =>
+                {
+                    config.AddJsonFile("appsettings.json", optional: false);
+                    config.AddEnvironmentVariables("VR_");
+                })
                 .ConfigureServices((hostContext, services) =>
                 {
+                    // Common
+                    services.Configure<TrackedMediaSettings>(
+                        hostContext.Configuration.GetSection(nameof(TrackedMediaSettings)));
+                    
                     // VRScraper
                     services.Configure<ScrapeSettings>(
                         hostContext.Configuration.GetSection(nameof(ScrapeSettings)));
                     services.AddScoped<IScrapeService, ScrapeService>();
 
                     // VRNotifier
-                    services.Configure<TrackedMediaSettings>(
-                        hostContext.Configuration.GetSection(nameof(TrackedMediaSettings)));
                     services.Configure<DiscordSettings>(
                         hostContext.Configuration.GetSection($"NotifierSettings:{nameof(DiscordSettings)}"));
-
                     services.AddSingleton<DiscordSocketClient>();
                     services.AddSingleton<CommandService>();
                     services.AddSingleton<CommandHandlingService>();
